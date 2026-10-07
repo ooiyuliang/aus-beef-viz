@@ -1,0 +1,254 @@
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "description": "Heatmap of cattle slaughtered in Australia each quarter, March 2005 to June 2026 (thousand head, original series, excluding calves). Data: ABS 7215.0 Livestock Products, Australia, Table 3.",
+  "data": {
+    "url": "data/cattle_slaughter_quarterly.csv",
+    "format": {
+      "parse": {
+        "year": "number",
+        "slaughter_000": "number"
+      }
+    }
+  },
+  "width": "container",
+  "height": 170,
+  "autosize": {
+    "type": "fit-x",
+    "contains": "padding"
+  },
+  "layer": [
+    {
+      "params": [
+        {
+          "name": "hover",
+          "select": {
+            "type": "point",
+            "on": "pointerover",
+            "clear": "pointerout"
+          }
+        }
+      ],
+      "mark": {
+        "type": "rect",
+        "stroke": "#ffffff",
+        "strokeWidth": 1.5,
+        "cursor": "pointer"
+      },
+      "encoding": {
+        "x": {
+          "field": "year",
+          "type": "ordinal",
+          "title": null,
+          "axis": {
+            "labelExpr": "datum.value % 5 === 0 ? datum.value : ''",
+            "labelAngle": 0,
+            "labelFontSize": 12,
+            "ticks": false,
+            "domain": false
+          }
+        },
+        "y": {
+          "field": "quarter",
+          "type": "ordinal",
+          "title": null,
+          "sort": [
+            "Jan–Mar",
+            "Apr–Jun",
+            "Jul–Sep",
+            "Oct–Dec"
+          ],
+          "axis": {
+            "labelFontSize": 12,
+            "ticks": false,
+            "domain": false
+          }
+        },
+        "color": {
+          "field": "slaughter_000",
+          "type": "quantitative",
+          "title": "Cattle slaughtered per quarter",
+          "scale": {
+            "range": [
+              "#f6eadb",
+              "#e2b47c",
+              "#c9824a",
+              "#9a4f28",
+              "#4a200f"
+            ],
+            "domain": [
+              1300,
+              2500
+            ],
+            "clamp": true
+          },
+          "legend": {
+            "orient": "bottom",
+            "direction": "horizontal",
+            "gradientLength": 300,
+            "values": [
+              1400,
+              1800,
+              2200,
+              2500
+            ],
+            "labelExpr": "format(datum.value / 1000, '.1f') + 'M'",
+            "labelFontSize": 12,
+            "titleFontSize": 12,
+            "titleLimit": 400
+          }
+        },
+        "strokeWidth": {
+          "condition": {
+            "param": "hover",
+            "empty": false,
+            "value": 3
+          },
+          "value": 1.5
+        },
+        "tooltip": [
+          {
+            "field": "year",
+            "type": "ordinal",
+            "title": "Year"
+          },
+          {
+            "field": "quarter",
+            "type": "nominal",
+            "title": "Quarter"
+          },
+          {
+            "field": "slaughter_000",
+            "type": "quantitative",
+            "title": "Cattle slaughtered (thousand)",
+            "format": ",.0f"
+          }
+        ]
+      }
+    },
+    {
+      "description": "Annotations above the heatmap",
+      "data": {
+        "values": [
+          {
+            "start": 2014,
+            "end": 2015,
+            "label": "Drought sell-off",
+            "side": "left"
+          },
+          {
+            "start": 2021,
+            "end": 2022,
+            "label": "Herd rebuild",
+            "side": "left"
+          },
+          {
+            "start": 2025,
+            "end": 2025,
+            "label": "Most since 1978",
+            "side": "right"
+          }
+        ]
+      },
+      "layer": [
+        {
+          "mark": {
+            "type": "rule",
+            "color": "#5e2a14",
+            "strokeWidth": 2,
+            "yOffset": -8,
+            "xOffset": {
+              "expr": "-bandwidth('x') * 0.4"
+            },
+            "x2Offset": {
+              "expr": "bandwidth('x') * 0.4"
+            }
+          },
+          "encoding": {
+            "x": {
+              "field": "start",
+              "type": "ordinal"
+            },
+            "x2": {
+              "field": "end"
+            },
+            "y": {
+              "value": 0
+            }
+          }
+        },
+        {
+          "transform": [
+            {
+              "filter": "datum.side === 'left'"
+            }
+          ],
+          "mark": {
+            "type": "text",
+            "align": "left",
+            "fontSize": 12,
+            "fontWeight": "bold",
+            "color": "#5e2a14",
+            "dy": -18,
+            "xOffset": {
+              "expr": "-bandwidth('x') * 0.4"
+            }
+          },
+          "encoding": {
+            "x": {
+              "field": "start",
+              "type": "ordinal"
+            },
+            "y": {
+              "value": 0
+            },
+            "text": {
+              "field": "label"
+            }
+          }
+        },
+        {
+          "transform": [
+            {
+              "filter": "datum.side === 'right'"
+            }
+          ],
+          "mark": {
+            "type": "text",
+            "align": "center",
+            "fontSize": 12,
+            "fontWeight": "bold",
+            "color": "#5e2a14",
+            "dy": -18
+          },
+          "encoding": {
+            "x": {
+              "field": "start",
+              "type": "ordinal"
+            },
+            "y": {
+              "value": 0
+            },
+            "text": {
+              "field": "label"
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "config": {
+    "view": {
+      "stroke": null
+    },
+    "font": "Source Sans 3, Helvetica, Arial, sans-serif",
+    "axis": {
+      "labelColor": "#3a2a1f"
+    },
+    "padding": {
+      "top": 30,
+      "left": 5,
+      "right": 5,
+      "bottom": 5
+    }
+  }
+}

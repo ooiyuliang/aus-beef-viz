@@ -1,0 +1,338 @@
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "description": "Connected scatterplot of the cattle cycle: Australia's beef herd at 30 June (x) against cattle slaughtered in the year to 30 June (y), 2005 to 2025. Points are joined in time order. Data: ABS Australian Agriculture: Livestock (herd, Table 1) and ABS 7215.0 Livestock Products (slaughter, excluding calves).",
+  "data": {
+    "url": "data/cattle_cycle_2005_2025.csv",
+    "format": {
+      "parse": {
+        "year": "number",
+        "herd_m": "number",
+        "slaughter_m": "number"
+      }
+    }
+  },
+  "width": "container",
+  "height": 440,
+  "autosize": {
+    "type": "fit-x",
+    "contains": "padding"
+  },
+  "encoding": {
+    "x": {
+      "field": "herd_m",
+      "type": "quantitative",
+      "title": "Beef cattle on farms at 30 June (millions)",
+      "scale": {
+        "domain": [
+          25,
+          29.5
+        ]
+      },
+      "axis": {
+        "tickCount": 5,
+        "gridColor": "#efe9e1",
+        "labelFontSize": 12,
+        "titleFontSize": 12,
+        "titleColor": "#6b5d52"
+      }
+    },
+    "y": {
+      "field": "slaughter_m",
+      "type": "quantitative",
+      "title": "Cattle slaughtered in the year (millions)",
+      "scale": {
+        "domain": [
+          5.5,
+          10
+        ]
+      },
+      "axis": {
+        "tickCount": 5,
+        "gridColor": "#efe9e1",
+        "labelFontSize": 12,
+        "titleFontSize": 12,
+        "titleColor": "#6b5d52"
+      }
+    }
+  },
+  "layer": [
+    {
+      "description": "Shaded zones explaining the two halves of the cycle",
+      "data": {
+        "values": [
+          {
+            "x": 25.1,
+            "y": 9.85,
+            "t1": "SELLING OFF",
+            "t2": "More cattle sold, often in drought",
+            "align": "left"
+          },
+          {
+            "x": 29.4,
+            "y": 6.15,
+            "t1": "REBUILDING",
+            "t2": "Fewer sold, cattle kept to grow the herd",
+            "align": "right"
+          }
+        ]
+      },
+      "layer": [
+        {
+          "mark": {
+            "type": "text",
+            "align": {
+              "expr": "datum.align"
+            },
+            "fontSize": 12,
+            "fontWeight": "bold",
+            "color": "#9e9086"
+          },
+          "encoding": {
+            "x": {
+              "field": "x",
+              "type": "quantitative"
+            },
+            "y": {
+              "field": "y",
+              "type": "quantitative"
+            },
+            "text": {
+              "field": "t1"
+            }
+          }
+        },
+        {
+          "mark": {
+            "type": "text",
+            "align": {
+              "expr": "datum.align"
+            },
+            "dy": 15,
+            "fontSize": 12,
+            "color": "#9e9086"
+          },
+          "encoding": {
+            "x": {
+              "field": "x",
+              "type": "quantitative"
+            },
+            "y": {
+              "field": "y",
+              "type": "quantitative"
+            },
+            "text": {
+              "field": "t2"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "transform": [
+        {
+          "filter": "datum.year <= 2013"
+        }
+      ],
+      "mark": {
+        "type": "line",
+        "color": "#d9d0c5",
+        "strokeWidth": 2
+      },
+      "encoding": {
+        "order": {
+          "field": "year"
+        }
+      }
+    },
+    {
+      "transform": [
+        {
+          "filter": "datum.year >= 2013"
+        }
+      ],
+      "mark": {
+        "type": "line",
+        "color": "#c9824a",
+        "strokeWidth": 3.5,
+        "strokeCap": "round",
+        "strokeJoin": "round"
+      },
+      "encoding": {
+        "order": {
+          "field": "year"
+        }
+      }
+    },
+    {
+      "params": [
+        {
+          "name": "hover",
+          "select": {
+            "type": "point",
+            "fields": [
+              "year"
+            ],
+            "on": "pointerover",
+            "clear": "pointerout"
+          }
+        }
+      ],
+      "mark": {
+        "type": "circle",
+        "size": 70,
+        "stroke": "#ffffff",
+        "strokeWidth": 1,
+        "cursor": "pointer"
+      },
+      "encoding": {
+        "color": {
+          "condition": {
+            "test": "datum.year >= 2013",
+            "value": "#9a4f28"
+          },
+          "value": "#c9c2bb"
+        },
+        "size": {
+          "condition": {
+            "param": "hover",
+            "empty": false,
+            "value": 180
+          },
+          "value": 70
+        },
+        "tooltip": [
+          {
+            "field": "year",
+            "type": "quantitative",
+            "title": "Year to 30 June",
+            "format": "d"
+          },
+          {
+            "field": "herd_m",
+            "type": "quantitative",
+            "title": "Beef cattle on farms (millions)",
+            "format": ".1f"
+          },
+          {
+            "field": "slaughter_m",
+            "type": "quantitative",
+            "title": "Cattle slaughtered (millions)",
+            "format": ".1f"
+          }
+        ]
+      }
+    },
+    {
+      "description": "Year labels on key points",
+      "transform": [
+        {
+          "filter": "indexof([2005, 2013, 2015, 2016, 2017, 2019, 2020, 2022, 2024, 2025], datum.year) >= 0"
+        },
+        {
+          "calculate": "{2005: 'up', 2013: 'up', 2015: 'right', 2016: 'down', 2017: 'down', 2019: 'up', 2020: 'left', 2022: 'down', 2024: 'right', 2025: 'up'}[datum.year]",
+          "as": "pos"
+        }
+      ],
+      "layer": [
+        {
+          "transform": [
+            {
+              "filter": "datum.pos === 'up'"
+            }
+          ],
+          "mark": {
+            "type": "text",
+            "dy": -13,
+            "fontSize": 12,
+            "fontWeight": "bold"
+          },
+          "encoding": {
+            "text": {
+              "field": "year",
+              "type": "nominal"
+            }
+          }
+        },
+        {
+          "transform": [
+            {
+              "filter": "datum.pos === 'down'"
+            }
+          ],
+          "mark": {
+            "type": "text",
+            "dy": 16,
+            "fontSize": 12,
+            "fontWeight": "bold"
+          },
+          "encoding": {
+            "text": {
+              "field": "year",
+              "type": "nominal"
+            }
+          }
+        },
+        {
+          "transform": [
+            {
+              "filter": "datum.pos === 'right'"
+            }
+          ],
+          "mark": {
+            "type": "text",
+            "align": "left",
+            "dx": 10,
+            "fontSize": 12,
+            "fontWeight": "bold"
+          },
+          "encoding": {
+            "text": {
+              "field": "year",
+              "type": "nominal"
+            }
+          }
+        },
+        {
+          "transform": [
+            {
+              "filter": "datum.pos === 'left'"
+            }
+          ],
+          "mark": {
+            "type": "text",
+            "align": "right",
+            "dx": -10,
+            "fontSize": 12,
+            "fontWeight": "bold"
+          },
+          "encoding": {
+            "text": {
+              "field": "year",
+              "type": "nominal"
+            }
+          }
+        }
+      ],
+      "encoding": {
+        "color": {
+          "condition": {
+            "test": "datum.year < 2013",
+            "value": "#9e9086"
+          },
+          "value": "#3a2a1f"
+        }
+      }
+    }
+  ],
+  "config": {
+    "view": {
+      "stroke": null
+    },
+    "font": "Source Sans 3, Helvetica, Arial, sans-serif",
+    "axis": {
+      "labelColor": "#3a2a1f",
+      "domainColor": "#c9bfb3",
+      "tickColor": "#c9bfb3"
+    }
+  }
+}

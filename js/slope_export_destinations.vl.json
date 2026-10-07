@@ -1,0 +1,241 @@
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "description": "Slope chart: Australian beef and veal exports (tonnes shipped weight) to the five largest 2025 markets plus Malaysia, 2015 vs 2025. Data: DAFF 57 Destination Reports, December 2015 and December 2025 (calendar year to date).",
+  "data": {
+    "url": "data/beef_exports_2015_2025.csv",
+    "format": {
+      "parse": {
+        "tonnes": "number",
+        "change": "number"
+      }
+    }
+  },
+  "transform": [
+    {
+      "calculate": "datum.country === 'Malaysia' ? 'malaysia' : (datum.change >= 0 ? 'up' : 'down')",
+      "as": "trend"
+    },
+    {
+      "calculate": "datum.country === 'China' && datum.year === '2025' ? 9000 : (datum.country === 'Japan' && datum.year === '2025' ? -9000 : 0)",
+      "as": "nudge"
+    },
+    {
+      "calculate": "datum.tonnes + datum.nudge",
+      "as": "label_y"
+    },
+    {
+      "calculate": "format(datum.tonnes / 1000, ',.0f') + 'k'",
+      "as": "k"
+    }
+  ],
+  "width": 560,
+  "height": 420,
+  "encoding": {
+    "x": {
+      "field": "year",
+      "type": "ordinal",
+      "title": null,
+      "scale": {
+        "padding": 1.3
+      },
+      "axis": {
+        "orient": "top",
+        "labelFontSize": 15,
+        "labelFontWeight": "bold",
+        "labelAngle": 0,
+        "domain": false,
+        "ticks": false,
+        "labelPadding": 8
+      }
+    },
+    "y": {
+      "field": "tonnes",
+      "type": "quantitative",
+      "axis": null,
+      "scale": {
+        "domain": [
+          0,
+          470000
+        ]
+      }
+    },
+    "color": {
+      "field": "trend",
+      "type": "nominal",
+      "legend": null,
+      "scale": {
+        "domain": [
+          "up",
+          "down",
+          "malaysia"
+        ],
+        "range": [
+          "#9a4f28",
+          "#9e9086",
+          "#1f6f5c"
+        ]
+      }
+    },
+    "opacity": {
+      "condition": {
+        "param": "hover",
+        "empty": true,
+        "value": 1
+      },
+      "value": 0.25
+    },
+    "tooltip": [
+      {
+        "field": "country",
+        "type": "nominal",
+        "title": "Destination"
+      },
+      {
+        "field": "year",
+        "type": "nominal",
+        "title": "Year"
+      },
+      {
+        "field": "tonnes",
+        "type": "quantitative",
+        "title": "Beef exported (tonnes)",
+        "format": ","
+      },
+      {
+        "field": "change",
+        "type": "quantitative",
+        "title": "Change 2015 to 2025",
+        "format": "+.0%"
+      }
+    ]
+  },
+  "layer": [
+    {
+      "mark": {
+        "type": "rule",
+        "strokeDash": [
+          2,
+          3
+        ],
+        "color": "#d9d0c5"
+      },
+      "encoding": {
+        "y": {
+          "datum": 0
+        },
+        "y2": {
+          "datum": 470000
+        },
+        "color": {
+          "value": "#d9d0c5"
+        },
+        "opacity": {
+          "value": 1
+        },
+        "tooltip": null
+      }
+    },
+    {
+      "mark": {
+        "type": "line",
+        "strokeWidth": 3,
+        "cursor": "pointer"
+      },
+      "encoding": {
+        "detail": {
+          "field": "country"
+        },
+        "opacity": {
+          "condition": {
+            "param": "hover",
+            "empty": true,
+            "value": 1
+          },
+          "value": 0.25
+        }
+      },
+      "params": [
+        {
+          "name": "hover",
+          "select": {
+            "type": "point",
+            "fields": [
+              "country"
+            ],
+            "on": "pointerover",
+            "clear": "pointerout"
+          }
+        }
+      ]
+    },
+    {
+      "mark": {
+        "type": "circle",
+        "size": 70,
+        "opacity": 1
+      }
+    },
+    {
+      "transform": [
+        {
+          "filter": "datum.year === '2015'"
+        },
+        {
+          "calculate": "datum.country + '  ' + datum.k",
+          "as": "label"
+        }
+      ],
+      "mark": {
+        "type": "text",
+        "align": "right",
+        "dx": -10,
+        "fontSize": 12.5
+      },
+      "encoding": {
+        "y": {
+          "field": "label_y",
+          "type": "quantitative"
+        },
+        "text": {
+          "field": "label"
+        }
+      }
+    },
+    {
+      "transform": [
+        {
+          "filter": "datum.year === '2025'"
+        },
+        {
+          "calculate": "datum.country + '  ' + datum.k + '  (' + format(datum.change, '+.0%') + ')'",
+          "as": "label"
+        }
+      ],
+      "mark": {
+        "type": "text",
+        "align": "left",
+        "dx": 10,
+        "fontSize": 12.5,
+        "fontWeight": "bold"
+      },
+      "encoding": {
+        "y": {
+          "field": "label_y",
+          "type": "quantitative"
+        },
+        "text": {
+          "field": "label"
+        }
+      }
+    }
+  ],
+  "config": {
+    "view": {
+      "stroke": null
+    },
+    "font": "Source Sans 3, Helvetica, Arial, sans-serif",
+    "axis": {
+      "labelColor": "#3a2a1f"
+    }
+  }
+}

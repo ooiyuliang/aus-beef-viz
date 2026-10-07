@@ -1,0 +1,349 @@
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "description": "Line chart of Australia's beef cattle herd at 30 June, 2005 to 2025, with shaded drought periods. Data: ABS, Australian Agriculture: Livestock 2024-25, Table 1 (experimental estimates). Drought periods: Queensland Government drought declarations (2013-2015) and Bureau of Meteorology (2017-2019).",
+  "width": "container",
+  "height": 340,
+  "autosize": {
+    "type": "fit-x",
+    "contains": "padding"
+  },
+  "layer": [
+    {
+      "description": "Shaded drought periods",
+      "data": {
+        "values": [
+          {
+            "start": "2013-01-01",
+            "end": "2015-12-31",
+            "line1": "Queensland",
+            "line2": "drought"
+          },
+          {
+            "start": "2017-01-01",
+            "end": "2020-02-15",
+            "line1": "Eastern drought",
+            "line2": "and Black Summer fires"
+          }
+        ]
+      },
+      "layer": [
+        {
+          "mark": {
+            "type": "rect",
+            "color": "#e9dfd2",
+            "opacity": 0.8
+          },
+          "encoding": {
+            "x": {
+              "field": "start",
+              "type": "temporal"
+            },
+            "x2": {
+              "field": "end"
+            }
+          }
+        },
+        {
+          "mark": {
+            "type": "text",
+            "align": "left",
+            "baseline": "top",
+            "dx": 4,
+            "dy": 4,
+            "fontSize": 12,
+            "fontWeight": "bold",
+            "color": "#6b5d52"
+          },
+          "encoding": {
+            "x": {
+              "field": "start",
+              "type": "temporal"
+            },
+            "y": {
+              "value": 0
+            },
+            "text": {
+              "field": "line1"
+            }
+          }
+        },
+        {
+          "mark": {
+            "type": "text",
+            "align": "left",
+            "baseline": "top",
+            "dx": 4,
+            "dy": 19,
+            "fontSize": 12,
+            "color": "#6b5d52",
+            "fontWeight": "bold"
+          },
+          "encoding": {
+            "x": {
+              "field": "start",
+              "type": "temporal"
+            },
+            "y": {
+              "value": 0
+            },
+            "text": {
+              "field": "line2"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "description": "The herd line, with hover interaction",
+      "data": {
+        "url": "data/beef_herd_2005_2025.csv"
+      },
+      "transform": [
+        {
+          "filter": "datum.code === 'AUS'"
+        },
+        {
+          "calculate": "datum.beef_cattle / 1e6",
+          "as": "cattle_m"
+        }
+      ],
+      "encoding": {
+        "x": {
+          "field": "date",
+          "type": "temporal",
+          "title": null,
+          "axis": {
+            "format": "%Y",
+            "tickCount": 10,
+            "grid": false,
+            "labelFontSize": 12
+          }
+        },
+        "y": {
+          "field": "cattle_m",
+          "type": "quantitative",
+          "title": "Beef cattle (millions)",
+          "scale": {
+            "domain": [
+              24,
+              30.5
+            ],
+            "zero": false
+          },
+          "axis": {
+            "tickCount": 6,
+            "labelFontSize": 12,
+            "titleFontSize": 12,
+            "titleColor": "#6b5d52",
+            "gridColor": "#efe9e1"
+          }
+        }
+      },
+      "layer": [
+        {
+          "mark": {
+            "type": "line",
+            "color": "#9a4f28",
+            "strokeWidth": 3
+          }
+        },
+        {
+          "params": [
+            {
+              "name": "hover",
+              "select": {
+                "type": "point",
+                "on": "pointermove",
+                "nearest": true,
+                "encodings": [
+                  "x"
+                ],
+                "clear": "pointerout"
+              }
+            }
+          ],
+          "mark": {
+            "type": "point",
+            "filled": true,
+            "color": "#9a4f28",
+            "size": 40
+          },
+          "encoding": {
+            "opacity": {
+              "condition": {
+                "param": "hover",
+                "empty": false,
+                "value": 1
+              },
+              "value": 0
+            },
+            "size": {
+              "condition": {
+                "param": "hover",
+                "empty": false,
+                "value": 90
+              },
+              "value": 40
+            },
+            "tooltip": [
+              {
+                "field": "financial_year",
+                "type": "nominal",
+                "title": "Year (at 30 June)"
+              },
+              {
+                "field": "cattle_m",
+                "type": "quantitative",
+                "title": "Beef cattle (millions)",
+                "format": ".2f"
+              }
+            ]
+          }
+        },
+        {
+          "transform": [
+            {
+              "filter": {
+                "param": "hover",
+                "empty": false
+              }
+            }
+          ],
+          "mark": {
+            "type": "rule",
+            "color": "#9a4f28",
+            "strokeDash": [
+              3,
+              3
+            ],
+            "opacity": 0.6
+          }
+        }
+      ]
+    },
+    {
+      "description": "Annotations: peak, low point and recent change",
+      "data": {
+        "values": [
+          {
+            "date": "2013-06-30",
+            "value": 28.97,
+            "text": "Peak: 29.0 million (2013)",
+            "kind": "above"
+          },
+          {
+            "date": "2020-06-30",
+            "value": 25.34,
+            "text": "Lowest since 2005: 25.3 million (2020)",
+            "kind": "below"
+          },
+          {
+            "date": "2025-06-30",
+            "value": 29.55,
+            "text": "2021–24: rain returns, herds rebuilt",
+            "kind": "note"
+          },
+          {
+            "date": "2025-06-30",
+            "value": 29.25,
+            "text": "2025: more sold to meet overseas demand",
+            "kind": "note"
+          }
+        ]
+      },
+      "encoding": {
+        "x": {
+          "field": "date",
+          "type": "temporal"
+        },
+        "y": {
+          "field": "value",
+          "type": "quantitative"
+        }
+      },
+      "layer": [
+        {
+          "transform": [
+            {
+              "filter": "datum.kind !== 'note'"
+            }
+          ],
+          "mark": {
+            "type": "point",
+            "filled": true,
+            "color": "#5e2a14",
+            "size": 60
+          }
+        },
+        {
+          "transform": [
+            {
+              "filter": "datum.kind === 'above'"
+            }
+          ],
+          "mark": {
+            "type": "text",
+            "dy": -14,
+            "fontSize": 12,
+            "fontWeight": "bold",
+            "color": "#5e2a14"
+          },
+          "encoding": {
+            "text": {
+              "field": "text"
+            }
+          }
+        },
+        {
+          "transform": [
+            {
+              "filter": "datum.kind === 'below'"
+            }
+          ],
+          "mark": {
+            "type": "text",
+            "dy": 18,
+            "fontSize": 12,
+            "fontWeight": "bold",
+            "color": "#5e2a14"
+          },
+          "encoding": {
+            "text": {
+              "field": "text"
+            }
+          }
+        },
+        {
+          "transform": [
+            {
+              "filter": "datum.kind === 'note'"
+            }
+          ],
+          "mark": {
+            "type": "text",
+            "align": "right",
+            "fontSize": 12,
+            "fontStyle": "italic",
+            "color": "#5e2a14"
+          },
+          "encoding": {
+            "text": {
+              "field": "text"
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "config": {
+    "view": {
+      "stroke": null
+    },
+    "font": "Source Sans 3, Helvetica, Arial, sans-serif",
+    "axis": {
+      "domainColor": "#c9bfb3",
+      "tickColor": "#c9bfb3",
+      "labelColor": "#3a2a1f"
+    }
+  }
+}

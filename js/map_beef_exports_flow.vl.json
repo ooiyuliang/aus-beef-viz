@@ -1,0 +1,333 @@
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "description": "Flow map of Australian beef and veal exports by destination country, calendar year 2025 (tonnes shipped weight). Data: DAFF, 57 Destination Report, December 2025 Calendar YTD. Countries receiving at least 5,000 tonnes are shown, plus Malaysia.",
+  "width": "container",
+  "height": 400,
+  "autosize": {
+    "type": "fit-x",
+    "contains": "padding"
+  },
+  "projection": {
+    "type": "equalEarth",
+    "rotate": [
+      -150,
+      0
+    ]
+  },
+  "params": [
+    {
+      "name": "origin_lon",
+      "value": 149.0
+    },
+    {
+      "name": "origin_lat",
+      "value": -25.0
+    }
+  ],
+  "layer": [
+    {
+      "description": "Base map: world countries, without Antarctica",
+      "data": {
+        "url": "data/world-110m.json",
+        "format": {
+          "type": "topojson",
+          "feature": "countries"
+        }
+      },
+      "transform": [
+        {
+          "filter": "datum.id != 10"
+        }
+      ],
+      "mark": {
+        "type": "geoshape",
+        "fill": "#ece6dd",
+        "stroke": "#ffffff",
+        "strokeWidth": 0.5
+      }
+    },
+    {
+      "description": "Flow lines: great-circle routes from Australia to each destination",
+      "data": {
+        "url": "data/beef_exports_2025.csv"
+      },
+      "transform": [
+        {
+          "calculate": "{'type': 'Feature', 'geometry': {'type': 'LineString', 'coordinates': [[origin_lon, origin_lat], [datum.lon, datum.lat]]}}",
+          "as": "route"
+        },
+        {
+          "calculate": "datum.country === 'Malaysia' ? 1 : 0",
+          "as": "is_malaysia"
+        }
+      ],
+      "params": [
+        {
+          "name": "hover",
+          "select": {
+            "type": "point",
+            "on": "pointerover",
+            "clear": "pointerout",
+            "fields": [
+              "country"
+            ]
+          }
+        }
+      ],
+      "mark": {
+        "type": "geoshape",
+        "filled": false,
+        "strokeCap": "round",
+        "cursor": "pointer"
+      },
+      "encoding": {
+        "shape": {
+          "field": "route",
+          "type": "geojson"
+        },
+        "strokeWidth": {
+          "field": "tonnes",
+          "type": "quantitative",
+          "title": "Beef exported in 2025 (tonnes)",
+          "scale": {
+            "domain": [
+              0,
+              460000
+            ],
+            "range": [
+              0.8,
+              16
+            ]
+          },
+          "legend": {
+            "values": [
+              10000,
+              100000,
+              250000,
+              450000
+            ],
+            "labelExpr": "format(datum.value, ',')",
+            "orient": "bottom",
+            "direction": "horizontal",
+            "titleLimit": 400,
+            "symbolType": "stroke",
+            "symbolStrokeColor": "#9a4f28",
+            "symbolFillColor": "transparent",
+            "symbolSize": 500
+          }
+        },
+        "stroke": {
+          "condition": {
+            "test": "datum.is_malaysia === 1",
+            "value": "#1f6f5c"
+          },
+          "value": "#9a4f28"
+        },
+        "strokeOpacity": {
+          "condition": [
+            {
+              "param": "hover",
+              "empty": false,
+              "value": 1
+            },
+            {
+              "test": "datum.is_malaysia === 1",
+              "value": 1
+            }
+          ],
+          "value": 0.55
+        },
+        "order": {
+          "field": "is_malaysia",
+          "type": "quantitative"
+        },
+        "tooltip": [
+          {
+            "field": "country",
+            "type": "nominal",
+            "title": "Destination"
+          },
+          {
+            "field": "tonnes",
+            "type": "quantitative",
+            "title": "Beef exported (tonnes)",
+            "format": ","
+          },
+          {
+            "field": "share",
+            "type": "quantitative",
+            "title": "Share of Australia's beef exports",
+            "format": ".1%"
+          },
+          {
+            "field": "rank",
+            "type": "ordinal",
+            "title": "Rank among destinations"
+          }
+        ]
+      }
+    },
+    {
+      "description": "Destination dots",
+      "data": {
+        "url": "data/beef_exports_2025.csv"
+      },
+      "mark": {
+        "type": "circle",
+        "size": 28,
+        "opacity": 1
+      },
+      "encoding": {
+        "longitude": {
+          "field": "lon",
+          "type": "quantitative"
+        },
+        "latitude": {
+          "field": "lat",
+          "type": "quantitative"
+        },
+        "color": {
+          "condition": {
+            "test": "datum.country === 'Malaysia'",
+            "value": "#1f6f5c"
+          },
+          "value": "#5e2a14"
+        },
+        "tooltip": [
+          {
+            "field": "country",
+            "type": "nominal",
+            "title": "Destination"
+          },
+          {
+            "field": "tonnes",
+            "type": "quantitative",
+            "title": "Beef exported (tonnes)",
+            "format": ","
+          }
+        ]
+      }
+    },
+    {
+      "description": "Labels for the four biggest markets",
+      "data": {
+        "url": "data/beef_exports_2025.csv"
+      },
+      "transform": [
+        {
+          "filter": "datum.rank <= 4"
+        },
+        {
+          "calculate": "datum.country + ' ' + format(datum.share, '.0%')",
+          "as": "label"
+        },
+        {
+          "calculate": "{'United States': [-132, 30], 'China': [80, 43], 'South Korea': [114, 49], 'Japan': [143, 31]}[datum.country]",
+          "as": "pos"
+        },
+        {
+          "calculate": "datum.pos[0]",
+          "as": "label_lon"
+        },
+        {
+          "calculate": "datum.pos[1]",
+          "as": "label_lat"
+        }
+      ],
+      "mark": {
+        "type": "text",
+        "align": "left",
+        "fontSize": 12,
+        "fontWeight": "bold",
+        "color": "#3a2a1f"
+      },
+      "encoding": {
+        "longitude": {
+          "field": "label_lon",
+          "type": "quantitative"
+        },
+        "latitude": {
+          "field": "label_lat",
+          "type": "quantitative"
+        },
+        "text": {
+          "field": "label"
+        }
+      }
+    },
+    {
+      "description": "Malaysia annotation",
+      "data": {
+        "url": "data/beef_exports_2025.csv"
+      },
+      "transform": [
+        {
+          "filter": "datum.country === 'Malaysia'"
+        },
+        {
+          "calculate": "['Malaysia: ' + format(datum.tonnes, ',') + ' tonnes', 'Australia\\'s ' + datum.rank + 'th-largest beef market']",
+          "as": "label"
+        }
+      ],
+      "mark": {
+        "type": "text",
+        "align": "right",
+        "fontSize": 12,
+        "color": "#1f6f5c",
+        "fontWeight": "bold",
+        "dx": -8,
+        "dy": 6,
+        "lineHeight": 15
+      },
+      "encoding": {
+        "longitude": {
+          "field": "lon",
+          "type": "quantitative"
+        },
+        "latitude": {
+          "field": "lat",
+          "type": "quantitative"
+        },
+        "text": {
+          "field": "label"
+        }
+      }
+    },
+    {
+      "description": "Australia origin label",
+      "data": {
+        "values": [
+          {}
+        ]
+      },
+      "mark": {
+        "type": "text",
+        "fontSize": 13,
+        "fontWeight": "bold",
+        "color": "#5e2a14",
+        "dy": 22
+      },
+      "encoding": {
+        "longitude": {
+          "datum": 134
+        },
+        "latitude": {
+          "datum": -25
+        },
+        "text": {
+          "value": "Australia"
+        }
+      }
+    }
+  ],
+  "config": {
+    "view": {
+      "stroke": null
+    },
+    "font": "Source Sans 3, Helvetica, Arial, sans-serif",
+    "legend": {
+      "titleFontSize": 12,
+      "labelFontSize": 12
+    }
+  }
+}

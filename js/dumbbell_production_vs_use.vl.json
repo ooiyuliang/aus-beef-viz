@@ -1,0 +1,289 @@
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "description": "Dumbbell chart: beef produced vs beef used at home (domestic supply) in ten Asia-Pacific countries, 2023, thousand tonnes. Data: FAOSTAT Food Balances, item 'Bovine Meat' (includes buffalo meat).",
+  "data": {
+    "url": "data/beef_food_balance_2023.csv",
+    "format": {
+      "parse": {
+        "produced": "number",
+        "used": "number",
+        "gap": "number",
+        "self_produced": "number"
+      }
+    }
+  },
+  "transform": [
+    {
+      "calculate": "datum.gap >= 0 ? 'surplus' : 'shortfall'",
+      "as": "balance"
+    },
+    {
+      "calculate": "datum.country === 'Malaysia' ? 'Shortfall ' + format(-datum.gap, ',') + 'k t: makes only ' + format(datum.self_produced, '.0%') + ' of what it uses' : (datum.country === 'Australia' ? 'Surplus ' + format(datum.gap, ',') + 'k t: makes ' + format(datum.self_produced, '.1f') + '× what it uses' : (datum.gap >= 0 ? 'Surplus ' + format(datum.gap, ',') + 'k t' : 'Shortfall ' + format(-datum.gap, ',') + 'k t'))",
+      "as": "gap_label"
+    },
+    {
+      "calculate": "max(datum.produced, datum.used)",
+      "as": "right_end"
+    }
+  ],
+  "width": 560,
+  "height": {
+    "step": 34
+  },
+  "encoding": {
+    "y": {
+      "field": "country",
+      "type": "nominal",
+      "title": null,
+      "sort": {
+        "field": "gap",
+        "order": "descending"
+      },
+      "axis": {
+        "domain": false,
+        "ticks": false,
+        "labelFontSize": 13,
+        "labelPadding": 10,
+        "labelFontWeight": {
+          "condition": {
+            "test": "datum.value === 'Malaysia'",
+            "value": "bold"
+          },
+          "value": "normal"
+        },
+        "labelColor": {
+          "condition": {
+            "test": "datum.value === 'Malaysia'",
+            "value": "#1f6f5c"
+          },
+          "value": "#3a2a1f"
+        }
+      }
+    }
+  },
+  "layer": [
+    {
+      "params": [
+        {
+          "name": "hover",
+          "select": {
+            "type": "point",
+            "fields": [
+              "country"
+            ],
+            "on": "pointerover",
+            "clear": "pointerout"
+          }
+        }
+      ],
+      "mark": {
+        "type": "rule",
+        "strokeWidth": 4,
+        "cursor": "pointer"
+      },
+      "encoding": {
+        "x": {
+          "field": "produced",
+          "type": "quantitative",
+          "title": "Thousand tonnes of beef (2023)",
+          "scale": {
+            "domain": [
+              0,
+              3200
+            ]
+          },
+          "axis": {
+            "values": [
+              0,
+              500,
+              1000,
+              1500,
+              2000
+            ],
+            "labelExpr": "format(datum.value, ',')",
+            "gridColor": "#efe9e1",
+            "labelFontSize": 12,
+            "titleFontSize": 12,
+            "titleColor": "#6b5d52"
+          }
+        },
+        "x2": {
+          "field": "used"
+        },
+        "color": {
+          "field": "balance",
+          "type": "nominal",
+          "legend": null,
+          "scale": {
+            "domain": [
+              "surplus",
+              "shortfall"
+            ],
+            "range": [
+              "#d9b99b",
+              "#c9c2bb"
+            ]
+          }
+        },
+        "tooltip": [
+          {
+            "field": "country",
+            "type": "nominal",
+            "title": "Country"
+          },
+          {
+            "field": "produced",
+            "type": "quantitative",
+            "title": "Produced (thousand t)",
+            "format": ","
+          },
+          {
+            "field": "used",
+            "type": "quantitative",
+            "title": "Used at home (thousand t)",
+            "format": ","
+          },
+          {
+            "field": "self_produced",
+            "type": "quantitative",
+            "title": "Produced locally, as share of use",
+            "format": ".0%"
+          }
+        ]
+      }
+    },
+    {
+      "transform": [
+        {
+          "fold": [
+            "produced",
+            "used"
+          ],
+          "as": [
+            "measure",
+            "value"
+          ]
+        },
+        {
+          "calculate": "datum.measure === 'produced' ? 'Beef produced' : 'Beef used at home'",
+          "as": "measure_label"
+        }
+      ],
+      "mark": {
+        "type": "circle",
+        "size": 120,
+        "opacity": 1,
+        "stroke": "#ffffff",
+        "strokeWidth": 1
+      },
+      "encoding": {
+        "x": {
+          "field": "value",
+          "type": "quantitative",
+          "axis": {
+            "values": [
+              0,
+              500,
+              1000,
+              1500,
+              2000
+            ],
+            "labelExpr": "format(datum.value, ',')",
+            "gridColor": "#efe9e1",
+            "labelFontSize": 12,
+            "titleFontSize": 12,
+            "titleColor": "#6b5d52"
+          },
+          "title": "Thousand tonnes of beef (2023)"
+        },
+        "color": {
+          "field": "measure_label",
+          "type": "nominal",
+          "title": null,
+          "scale": {
+            "domain": [
+              "Beef produced",
+              "Beef used at home"
+            ],
+            "range": [
+              "#9a4f28",
+              "#4f6f7f"
+            ]
+          },
+          "legend": {
+            "orient": "top",
+            "direction": "horizontal",
+            "labelFontSize": 13,
+            "symbolSize": 140,
+            "offset": 8,
+            "labelLimit": 300
+          }
+        },
+        "tooltip": [
+          {
+            "field": "country",
+            "type": "nominal",
+            "title": "Country"
+          },
+          {
+            "field": "measure_label",
+            "type": "nominal",
+            "title": "Measure"
+          },
+          {
+            "field": "value",
+            "type": "quantitative",
+            "title": "Thousand tonnes",
+            "format": ","
+          }
+        ]
+      }
+    },
+    {
+      "mark": {
+        "type": "text",
+        "align": "left",
+        "dx": 12,
+        "fontSize": 12
+      },
+      "encoding": {
+        "x": {
+          "field": "right_end",
+          "type": "quantitative"
+        },
+        "text": {
+          "field": "gap_label"
+        },
+        "color": {
+          "condition": [
+            {
+              "test": "datum.country === 'Malaysia'",
+              "value": "#1f6f5c"
+            },
+            {
+              "test": "datum.gap >= 0",
+              "value": "#9a4f28"
+            }
+          ],
+          "value": "#6b5d52"
+        }
+      }
+    }
+  ],
+  "resolve": {
+    "scale": {
+      "color": "independent"
+    }
+  },
+  "config": {
+    "view": {
+      "stroke": null
+    },
+    "font": "Source Sans 3, Helvetica, Arial, sans-serif",
+    "axis": {
+      "labelColor": "#3a2a1f",
+      "domainColor": "#c9bfb3",
+      "tickColor": "#c9bfb3"
+    }
+  }
+}

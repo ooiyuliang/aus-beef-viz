@@ -1,0 +1,44 @@
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "description": "Waffle chart: share of Australian beef exports in 2025 that were grass-fed vs grain-fed. 100 squares, each = 1% of exports. Data: Meat & Livestock Australia (2026), 'Beef exports break new ground in 2025'.",
+  "data": {"url": "data/beef_exports_feed_type_2025.csv", "format": {"parse": {"tonnes": "number", "growth_vs_2024": "number"}}},
+  "transform": [
+    {"joinaggregate": [{"op": "sum", "field": "tonnes", "as": "total"}]},
+    {"calculate": "datum.tonnes / datum.total", "as": "share"},
+    {"calculate": "round(datum.share * 100)", "as": "squares"},
+    {"calculate": "datum.feed_type === 'Grain-fed' ? 0 : 1", "as": "order"},
+    {"window": [{"op": "sum", "field": "squares", "as": "cum"}], "sort": [{"field": "order"}]},
+    {"calculate": "sequence(datum.cum - datum.squares, datum.cum)", "as": "idx"},
+    {"flatten": ["idx"]},
+    {"calculate": "datum.idx % 10", "as": "col"},
+    {"calculate": "9 - floor(datum.idx / 10)", "as": "row"}
+  ],
+  "width": 280,
+  "height": 280,
+  "params": [
+    {"name": "pick", "select": {"type": "point", "fields": ["feed_type"], "on": "pointerover", "clear": "pointerout"}, "bind": "legend"}
+  ],
+  "mark": {"type": "rect", "cornerRadius": 2, "cursor": "pointer"},
+  "encoding": {
+    "x": {"field": "col", "type": "ordinal", "axis": null, "scale": {"paddingInner": 0.14}},
+    "y": {"field": "row", "type": "ordinal", "axis": null, "sort": "descending", "scale": {"paddingInner": 0.14}},
+    "color": {
+      "field": "feed_type", "type": "nominal", "title": null,
+      "scale": {"domain": ["Grass-fed", "Grain-fed"], "range": ["#6b8e4e", "#d4a24c"]},
+      "legend": {"orient": "top", "direction": "horizontal", "labelFontSize": 13, "symbolType": "square", "symbolSize": 180, "offset": 12,
+                 "labelExpr": "datum.label === 'Grass-fed' ? 'Grass-fed (71%)' : 'Grain-fed (29%)'"}
+    },
+    "opacity": {"condition": {"param": "pick", "value": 1}, "value": 0.25},
+    "tooltip": [
+      {"field": "feed_type", "type": "nominal", "title": "Type"},
+      {"field": "tonnes", "type": "quantitative", "title": "Exported in 2025 (tonnes)", "format": ","},
+      {"field": "share", "type": "quantitative", "title": "Share of beef exports", "format": ".0%"},
+      {"field": "growth_vs_2024", "type": "quantitative", "title": "Growth since 2024", "format": "+.0%"}
+    ]
+  },
+  "config": {
+    "view": {"stroke": null},
+    "font": "Source Sans 3, Helvetica, Arial, sans-serif",
+    "legend": {"labelColor": "#3a2a1f"}
+  }
+}

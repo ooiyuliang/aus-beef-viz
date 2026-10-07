@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>From Paddock to Plate: Australia's Beef and Malaysia</title>
+
+  <!-- Fonts: Bitter (headings), Source Sans 3 (body) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bitter:wght@600;700&family=Source+Sans+3:wght@400;600&display=swap" rel="stylesheet">
+
+  <!-- Vega, Vega-Lite and Vega-Embed -->
+  <script src="https://cdn.jsdelivr.net/npm/vega@5"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vega-lite@5"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vega-embed@6"></script>
+
+  <style>
+    :root {
+      --ink: #2b2420;
+      --muted: #6b5d52;
+      --accent: #9a4f28;
+      --line: #e6ddd2;
+      --bg: #ffffff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: "Source Sans 3", Helvetica, Arial, sans-serif;
+      font-size: 18px;
+      line-height: 1.6;
+    }
+    .wrap { max-width: 1000px; margin: 0 auto; padding: 0 24px; }
+    .prose { max-width: 680px; }          /* keeps text lines under ~80 characters */
+
+    header { padding: 72px 0 40px; border-bottom: 1px solid var(--line); }
+    h1, h2 { font-family: "Bitter", Georgia, serif; line-height: 1.2; margin: 0 0 16px; }
+    h1 { font-size: 46px; }
+    h2 { font-size: 30px; color: var(--accent); }
+    h3 { font-family: "Bitter", Georgia, serif; font-size: 22px; margin: 48px 0 12px; }
+    .lede { font-size: 21px; color: var(--muted); }
+
+    section { padding: 56px 0; border-bottom: 1px solid var(--line); }
+    .chart { width: 100%; margin-top: 24px; }
+    .caption { font-size: 15px; color: var(--muted); margin-top: 8px; }
+
+    /* Year radio buttons that Vega-Lite generates */
+    .vega-bindings { font-size: 15px; margin-top: 8px; }
+    .vega-bind-name { font-weight: 600; }
+    .vega-bind label { margin-right: 10px; }
+
+    .two-col { display: grid; grid-template-columns: auto 1fr; gap: 48px; align-items: center; margin-top: 24px; }
+    .stat { margin-bottom: 24px; }
+    .stat-number { font-family: "Bitter", Georgia, serif; font-size: 34px; font-weight: 700; line-height: 1.1; }
+    .stat-label { font-size: 16px; color: var(--muted); }
+    .grass { color: #4f6f36; }
+    .grain { color: #a8771f; }
+    @media (max-width: 760px) { .two-col { grid-template-columns: 1fr; gap: 24px; } }
+
+    footer { padding: 40px 0 64px; font-size: 15px; color: var(--muted); }
+    footer a { color: var(--accent); }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="wrap prose">
+      <h1>From Paddock to Plate</h1>
+      <p class="lede">The beef in many Malaysian supermarkets and restaurants comes from Australia,
+        one of the world's biggest beef exporters. Where are Australia's cattle raised,
+        and how has the industry changed?</p>
+    </div>
+  </header>
+
+  <section id="world-stage">
+    <div class="wrap">
+      <div class="prose">
+        <h2>A beef giant on the world stage</h2>
+        <p>Australia is the world's fifth-largest beef producer, making about 2.6 million tonnes of beef in 2024.
+          Only the United States, Brazil, China and Argentina produce more. Malaysia, by comparison,
+          produced about 39,000 tonnes and ranked 103rd.</p>
+        <p>Each circle's size shows how much beef a country produces. Switch between years to see how the
+          picture has changed: Brazil's production grew by 61% between 2005 and 2024, and Australia's by 24%.</p>
+      </div>
+      <div id="map_world_production" class="chart"></div>
+      <p class="caption">Production of cattle meat (tonnes, carcass weight) by country. Circle area is proportional to
+        production. Mainland China only; Hong Kong, Macao and Taiwan are counted separately. Source: FAOSTAT.</p>
+
+      <div class="prose">
+        <h3>Twenty years in the top five</h3>
+        <p>Australia has been one of the world's five biggest beef producers in almost every year since 2005.
+          It briefly slipped to sixth place in 2021 and 2022, when farmers were holding on to cattle to rebuild their
+          herds after the drought. Further down the list, Turkey and Pakistan have climbed into the top ten.</p>
+      </div>
+      <div id="bump_production_ranks" class="chart"></div>
+      <p class="caption">World ranking of beef producers each year, 2005 to 2024, for the 13 countries that were in the
+        top ten in at least one year. Ranks below 15th are not shown. Hover over a line to see the tonnes produced.
+        Source: FAOSTAT.</p>
+    </div>
+  </section>
+
+  <section id="where-cattle-live">
+    <div class="wrap">
+      <div class="prose">
+        <h2>Where Australia's cattle live</h2>
+        <p>Australia had about 27.6 million beef cattle in June 2025. Most of them are in the warm,
+          grassy north-east: Queensland alone is home to about half of the national herd.</p>
+        <p>Hover over a state to see its numbers, and choose a year to see how the herd has changed.</p>
+      </div>
+      <div id="map_cattle_by_state" class="chart"></div>
+      <p class="caption">Beef cattle on farms at 30 June each year. Figures for the Australian Capital
+        Territory are included in New South Wales. Source: Australian Bureau of Statistics.</p>
+
+      <div class="prose">
+        <p>Each state's herd rises and falls in its own way. The small charts below show how far each
+          state's herd is above or below its 2005 size. A line above zero means more cattle than in 2005;
+          below zero means fewer.</p>
+      </div>
+      <div id="small_multiples_state_herd" class="chart"></div>
+      <p class="caption">Change in beef cattle numbers compared with 30 June 2005. All charts use the same scale.
+        Source: Australian Bureau of Statistics.</p>
+    </div>
+  </section>
+
+  <section id="boom-and-bust">
+    <div class="wrap">
+      <div class="prose">
+        <h2>Boom and bust: the cattle cycle</h2>
+        <p>Australia's herd is not steady. When rain falls, grass grows and farmers keep more cattle.
+          When drought hits, there is not enough feed, so farmers sell cattle and the herd shrinks.</p>
+        <p>In 2014, about 80% of Queensland was officially in drought. A few years later, eastern Australia
+          went through three dry years in a row, and 2019 was the driest year on record for the whole
+          country. By June 2020 the herd had fallen to its lowest level in this 20-year record.</p>
+      </div>
+      <div id="line_national_herd" class="chart"></div>
+      <p class="caption">Beef cattle on farms in Australia at 30 June each year. Shaded areas mark major droughts.
+        Sources: Australian Bureau of Statistics; Bureau of Meteorology; Queensland Government.</p>
+
+      <div class="prose">
+        <h3>When the herd shrinks, more cattle go to market</h3>
+        <p>Each square below is three months. The darker the square, the more cattle were slaughtered for meat.
+          The drought years of 2014 and 2015 are dark, as farmers sold cattle they could not feed. In 2021 and 2022
+          the squares turn pale, because farmers were keeping cattle to rebuild their herds. By 2025, with herds
+          rebuilt, Australia slaughtered 9.28 million cattle, the most since 1978.</p>
+      </div>
+      <div id="heatmap_quarterly_slaughter" class="chart"></div>
+      <p class="caption">Cattle slaughtered at registered abattoirs each quarter, March 2005 to June 2026 (excluding calves).
+        Hover over a square for the exact number. Source: Australian Bureau of Statistics.</p>
+
+      <div class="prose">
+        <h3>The cattle cycle</h3>
+        <p>This chart puts the two ideas together. Each dot is one year: further right means a bigger herd, higher up
+          means more cattle sold. Follow the line from 2013 and it loops around: a big herd, then a drought sell-off,
+          then a rebuild, then a big herd again. Farmers call this the cattle cycle.</p>
+      </div>
+      <div id="connected_scatter_cattle_cycle" class="chart"></div>
+      <p class="caption">Beef cattle on farms at 30 June, and cattle slaughtered in the 12 months to 30 June, 2005 to 2025.
+        Years before 2013 are shown in grey. Hover over a dot for the numbers. Source: Australian Bureau of Statistics.</p>
+    </div>
+  </section>
+
+  <section id="where-beef-goes">
+    <div class="wrap">
+      <div class="prose">
+        <h2>Where the beef goes</h2>
+        <p>Australia shipped about 1.55 million tonnes of beef overseas in 2025. Four countries took
+          more than three-quarters of it: the United States, China, Japan and South Korea.</p>
+        <p>Malaysia received 10,876 tonnes, making it Australia's 13th-largest beef market.
+          Thicker lines mean more beef. Hover over a line to see the details.</p>
+      </div>
+      <div id="map_beef_exports_flow" class="chart"></div>
+      <p class="caption">Beef and veal exports in 2025, in tonnes shipped weight. Shows the 16 countries that
+        received at least 5,000 tonnes, plus Malaysia (together 97% of all exports). Lines end at each
+        country's capital city. Source: Department of Agriculture, Fisheries and Forestry.</p>
+
+      <div class="prose">
+        <h3>Ten years of change</h3>
+        <p>Australia exported 20% more beef in 2025 than in 2015, but not every market grew.
+          China's purchases almost doubled and Indonesia's rose by 70%. Japan, once the biggest buyer after
+          the United States, now takes less. Malaysia also buys about 12% less Australian beef than it did ten years ago.</p>
+      </div>
+      <div id="slope_export_destinations" class="chart"></div>
+      <p class="caption">Beef and veal exports in 2015 and 2025 (k = thousand tonnes, shipped weight), for the five largest
+        markets in 2025 plus Malaysia. Brown lines grew, grey lines fell, and Malaysia is shown in green. Hover over a
+        line to highlight it. Source: Department of Agriculture, Fisheries and Forestry.</p>
+
+      <div class="prose">
+        <h3>Why Malaysia buys beef from overseas</h3>
+        <p>Some countries produce far more beef than they eat, and sell the rest abroad. Others eat more than
+          they can produce, and must import the difference. In 2023, Malaysia produced about 39,000 tonnes of beef
+          but used about 307,000 tonnes, so it made only about 13% of the beef it ate. Australia made about three
+          times as much beef as it used.</p>
+      </div>
+      <div id="dumbbell_production_vs_use" class="chart"></div>
+      <p class="caption">Beef produced and beef used at home (production plus imports minus exports) in 2023, in thousand
+        tonnes, for ten Asia-Pacific countries. China and the United States are left out because their much larger
+        totals would squash the other countries. Includes buffalo meat. Source: FAOSTAT Food Balances.</p>
+    </div>
+  </section>
+
+  <section id="changing-industry">
+    <div class="wrap">
+      <div class="prose">
+        <h2>A changing industry: more grain-fed beef</h2>
+        <p>Most Australian cattle spend their lives grazing on open pasture. Beef from these animals is
+          called <strong>grass-fed</strong>. Some cattle instead spend their final months in a feedlot,
+          a fenced yard where they are fed a grain-based diet. Their beef is called <strong>grain-fed</strong>
+          and is often more marbled (it has more fat running through the meat).</p>
+        <p>Grass-fed beef still makes up most of Australia's exports, but grain-fed beef is growing faster.</p>
+      </div>
+      <div class="two-col">
+        <div id="waffle_feed_type"></div>
+        <div>
+          <div class="stat">
+            <div class="stat-number grass">1,096,456 t</div>
+            <div class="stat-label">grass-fed beef exported in 2025, up 13% on 2024</div>
+          </div>
+          <div class="stat">
+            <div class="stat-number grain">449,292 t</div>
+            <div class="stat-label">grain-fed beef exported in 2025, up 20% on 2024</div>
+          </div>
+          <p class="caption">Both are the highest yearly totals on record. Each square in the chart is 1% of
+            Australia's beef exports, about 15,500 tonnes.</p>
+        </div>
+      </div>
+      <p class="caption">Source: Meat &amp; Livestock Australia (2026), Beef exports break new ground in 2025.</p>
+    </div>
+  </section>
+
+  <footer>
+    <div class="wrap prose">
+      <p><strong>Data sources</strong><br>
+        Australian Bureau of Statistics (2026), <a href="https://www.abs.gov.au/statistics/industry/agriculture/australian-agriculture-livestock/latest-release">Australian Agriculture: Livestock, 2024-25</a> (experimental estimates), including the cattle herd series 2005 to 2025.<br>
+        Department of Agriculture, Fisheries and Forestry (2026), <a href="https://www.agriculture.gov.au/biosecurity-trade/export/controlled-goods/meat/statistics/red-meat-stats-2025">Red meat export statistics 2025</a> and <a href="https://www.agriculture.gov.au/biosecurity-trade/export/controlled-goods/meat/statistics/red-meat-stats-2015">2015</a>, 57 Destination Reports, December (calendar year to date).<br>
+        Meat &amp; Livestock Australia (2026), <a href="https://www.mla.com.au/news-and-events/industry-news/beef-exports-break-new-ground-in-2025/">Beef exports break new ground in 2025</a>.<br>
+        Australian Bureau of Statistics (2026), <a href="https://www.abs.gov.au/statistics/industry/agriculture/livestock-products-australia/latest-release">Livestock Products, Australia</a>, Table 3, cattle slaughtered (excluding calves).<br>
+        FAO (2026), <a href="https://www.fao.org/faostat/en/#data/QCL">FAOSTAT Crops and livestock products</a>, meat of cattle, production, 2005–2024.<br>
+        FAO (2026), <a href="https://www.fao.org/faostat/en/#data/FBS">FAOSTAT Food Balances</a>, bovine meat, 2023.<br>
+        Drought information: Bureau of Meteorology (2019), <a href="http://www.bom.gov.au/climate/current/statements/scs70.pdf">Special Climate Statement 70</a>; Queensland Government, <a href="https://www.stateoftheenvironment.detsi.qld.gov.au/climate/climate-observations/extent-of-drought-declarations-in-queensland">Extent of drought declarations in Queensland</a>.<br>
+        World map: <a href="https://github.com/vega/vega-datasets">vega-datasets</a> world-110m, based on Natural Earth.<br>
+        State boundaries: <a href="https://www.naturalearthdata.com/">Natural Earth</a> (public domain), simplified with mapshaper.</p>
+      <p>Created by Ooi Yu Liang, 8/10/2026. AI tools were used to help [describe use].</p>
+    </div>
+  </footer>
+
+  <script>
+    vegaEmbed('#map_world_production', 'js/map_world_production.vl.json', { actions: false })
+      .catch(console.error);
+    vegaEmbed('#bump_production_ranks', 'js/bump_production_ranks.vl.json', { actions: false })
+      .catch(console.error);
+    vegaEmbed('#map_cattle_by_state', 'js/map_cattle_by_state.vl.json', { actions: false })
+      .catch(console.error);
+    vegaEmbed('#small_multiples_state_herd', 'js/small_multiples_state_herd.vl.json', { actions: false })
+      .catch(console.error);
+    vegaEmbed('#line_national_herd', 'js/line_national_herd.vl.json', { actions: false })
+      .catch(console.error);
+    vegaEmbed('#slope_export_destinations', 'js/slope_export_destinations.vl.json', { actions: false })
+      .catch(console.error);
+    vegaEmbed('#dumbbell_production_vs_use', 'js/dumbbell_production_vs_use.vl.json', { actions: false })
+      .catch(console.error);
+    vegaEmbed('#waffle_feed_type', 'js/waffle_feed_type.vl.json', { actions: false })
+      .catch(console.error);
+    vegaEmbed('#heatmap_quarterly_slaughter', 'js/heatmap_quarterly_slaughter.vl.json', { actions: false })
+      .catch(console.error);
+    vegaEmbed('#connected_scatter_cattle_cycle', 'js/connected_scatter_cattle_cycle.vl.json', { actions: false })
+      .catch(console.error);
+    vegaEmbed('#map_beef_exports_flow', 'js/map_beef_exports_flow.vl.json', { actions: false })
+      .catch(console.error);
+  </script>
+</body>
+</html>

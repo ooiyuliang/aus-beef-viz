@@ -1,0 +1,334 @@
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "description": "Proportional symbol map of beef (cattle meat) production by country in 2005, 2015 and 2024. Circle area is proportional to tonnes produced. Data: FAOSTAT, Crops and livestock products (QCL), 'Meat of cattle with the bone, fresh or chilled', Production.",
+  "width": "container",
+  "height": 420,
+  "autosize": {
+    "type": "fit-x",
+    "contains": "padding"
+  },
+  "projection": {
+    "type": "equalEarth",
+    "rotate": [
+      -150,
+      0
+    ]
+  },
+  "params": [
+    {
+      "name": "year",
+      "value": 2024,
+      "bind": {
+        "input": "radio",
+        "options": [
+          2005,
+          2015,
+          2024
+        ],
+        "name": "Year: "
+      }
+    }
+  ],
+  "layer": [
+    {
+      "description": "Base map without Antarctica",
+      "data": {
+        "url": "data/world-110m.json",
+        "format": {
+          "type": "topojson",
+          "feature": "countries"
+        }
+      },
+      "transform": [
+        {
+          "filter": "datum.id != 10"
+        }
+      ],
+      "mark": {
+        "type": "geoshape",
+        "fill": "#ece6dd",
+        "stroke": "#ffffff",
+        "strokeWidth": 0.5
+      }
+    },
+    {
+      "description": "Circles sized by production",
+      "data": {
+        "url": "data/beef_production_world.csv",
+        "format": {
+          "parse": {
+            "year": "number",
+            "tonnes": "number",
+            "rank": "number",
+            "lon": "number",
+            "lat": "number"
+          }
+        }
+      },
+      "transform": [
+        {
+          "filter": "datum.year === year"
+        },
+        {
+          "calculate": "datum.country === 'Australia' ? 'Australia' : (datum.country === 'Malaysia' ? 'Malaysia' : 'Other')",
+          "as": "group"
+        }
+      ],
+      "params": [
+        {
+          "name": "hover",
+          "select": {
+            "type": "point",
+            "fields": [
+              "country"
+            ],
+            "on": "pointerover",
+            "clear": "pointerout"
+          }
+        }
+      ],
+      "mark": {
+        "type": "circle",
+        "stroke": "#ffffff",
+        "strokeWidth": 1,
+        "cursor": "pointer"
+      },
+      "encoding": {
+        "longitude": {
+          "field": "lon",
+          "type": "quantitative"
+        },
+        "latitude": {
+          "field": "lat",
+          "type": "quantitative"
+        },
+        "size": {
+          "field": "tonnes",
+          "type": "quantitative",
+          "title": "Beef produced (million tonnes)",
+          "scale": {
+            "domain": [
+              0,
+              12500000
+            ],
+            "range": [
+              0,
+              2600
+            ]
+          },
+          "legend": {
+            "values": [
+              1000000,
+              5000000,
+              10000000
+            ],
+            "labelExpr": "format(datum.value / 1e6, ',.0f') + 'M t'",
+            "orient": "bottom",
+            "direction": "horizontal",
+            "titleLimit": 300,
+            "symbolFillColor": "#b5a291",
+            "symbolStrokeColor": "#ffffff",
+            "labelFontSize": 12,
+            "titleFontSize": 12
+          }
+        },
+        "color": {
+          "field": "group",
+          "type": "nominal",
+          "legend": null,
+          "scale": {
+            "domain": [
+              "Australia",
+              "Malaysia",
+              "Other"
+            ],
+            "range": [
+              "#9a4f28",
+              "#1f6f5c",
+              "#b5a291"
+            ]
+          }
+        },
+        "fillOpacity": {
+          "condition": {
+            "param": "hover",
+            "empty": false,
+            "value": 1
+          },
+          "value": 0.85
+        },
+        "order": {
+          "field": "tonnes",
+          "type": "quantitative",
+          "sort": "descending"
+        },
+        "tooltip": [
+          {
+            "field": "country",
+            "type": "nominal",
+            "title": "Country"
+          },
+          {
+            "field": "tonnes",
+            "type": "quantitative",
+            "title": "Beef produced (tonnes)",
+            "format": ",.0f"
+          },
+          {
+            "field": "rank",
+            "type": "ordinal",
+            "title": "World rank"
+          },
+          {
+            "field": "year",
+            "type": "ordinal",
+            "title": "Year"
+          }
+        ]
+      }
+    },
+    {
+      "description": "Rank labels for the top five producers",
+      "data": {
+        "url": "data/beef_production_world.csv",
+        "format": {
+          "parse": {
+            "year": "number",
+            "tonnes": "number",
+            "rank": "number"
+          }
+        }
+      },
+      "transform": [
+        {
+          "filter": "datum.year === year && datum.rank <= 5"
+        },
+        {
+          "calculate": "{'United States': [-140, 33], 'Brazil': [-52, -27], 'China': [106, 50], 'Argentina': [-66, -48], 'Australia': [134, -40]}[datum.country]",
+          "as": "pos"
+        },
+        {
+          "filter": "isValid(datum.pos)"
+        },
+        {
+          "calculate": "datum.pos[0]",
+          "as": "label_lon"
+        },
+        {
+          "calculate": "datum.pos[1]",
+          "as": "label_lat"
+        },
+        {
+          "calculate": "'#' + datum.rank + ' ' + datum.country + ' ' + format(datum.tonnes / 1e6, '.1f') + 'M t'",
+          "as": "label"
+        }
+      ],
+      "mark": {
+        "type": "text",
+        "fontSize": 12,
+        "fontWeight": "bold"
+      },
+      "encoding": {
+        "longitude": {
+          "field": "label_lon",
+          "type": "quantitative"
+        },
+        "latitude": {
+          "field": "label_lat",
+          "type": "quantitative"
+        },
+        "text": {
+          "field": "label"
+        },
+        "color": {
+          "condition": {
+            "test": "datum.country === 'Australia'",
+            "value": "#9a4f28"
+          },
+          "value": "#3a2a1f"
+        }
+      }
+    },
+    {
+      "description": "Ring marking Malaysia, whose circle is too small to see",
+      "data": {
+        "url": "data/beef_production_world.csv",
+        "format": {
+          "parse": {
+            "year": "number"
+          }
+        }
+      },
+      "transform": [
+        {
+          "filter": "datum.year === year && datum.country === 'Malaysia'"
+        }
+      ],
+      "mark": {
+        "type": "point",
+        "shape": "circle",
+        "filled": false,
+        "size": 110,
+        "strokeWidth": 2,
+        "color": "#1f6f5c"
+      },
+      "encoding": {
+        "longitude": {
+          "field": "lon",
+          "type": "quantitative"
+        },
+        "latitude": {
+          "field": "lat",
+          "type": "quantitative"
+        }
+      }
+    },
+    {
+      "description": "Malaysia annotation",
+      "data": {
+        "url": "data/beef_production_world.csv",
+        "format": {
+          "parse": {
+            "year": "number",
+            "tonnes": "number",
+            "rank": "number"
+          }
+        }
+      },
+      "transform": [
+        {
+          "filter": "datum.year === year && datum.country === 'Malaysia'"
+        },
+        {
+          "calculate": "['Malaysia: ' + format(datum.tonnes / 1000, ',.0f') + 'k t', 'rank #' + datum.rank]",
+          "as": "label"
+        }
+      ],
+      "mark": {
+        "type": "text",
+        "align": "left",
+        "fontSize": 12,
+        "fontWeight": "bold",
+        "color": "#1f6f5c",
+        "lineHeight": 15
+      },
+      "encoding": {
+        "longitude": {
+          "datum": 117
+        },
+        "latitude": {
+          "datum": 11
+        },
+        "text": {
+          "field": "label"
+        }
+      }
+    }
+  ],
+  "config": {
+    "view": {
+      "stroke": null
+    },
+    "font": "Source Sans 3, Helvetica, Arial, sans-serif"
+  }
+}

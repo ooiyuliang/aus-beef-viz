@@ -1,0 +1,118 @@
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "description": "Choropleth map of Australian beef cattle numbers by state and territory, 2020-21 to 2024-25. Data: ABS, Australian Agriculture: Livestock (experimental estimates, cattle on holding at 30 June). ACT is included in NSW, as published by the ABS.",
+  "width": "container",
+  "height": 460,
+  "autosize": {"type": "fit-x", "contains": "padding"},
+  "params": [
+    {
+      "name": "year",
+      "value": "2024-25",
+      "bind": {
+        "input": "radio",
+        "options": ["2020-21", "2021-22", "2022-23", "2023-24", "2024-25"],
+        "name": "Year (at 30 June): "
+      }
+    }
+  ],
+  "projection": {
+    "type": "conicEqualArea",
+    "parallels": [-18, -36],
+    "rotate": [-132, 0]
+  },
+  "data": {
+    "url": "data/au_states.topojson",
+    "format": {"type": "topojson", "feature": "states"}
+  },
+  "transform": [
+    {"calculate": "datum.properties.code", "as": "code"},
+    {
+      "lookup": "code",
+      "from": {
+        "data": {"url": "data/beef_cattle_by_state.csv"},
+        "key": "code"
+      },
+      "as": "d"
+    },
+    {"calculate": "datum.d.state", "as": "state"},
+    {"calculate": "datum.d[year] / 1000", "as": "cattle_m"},
+    {"calculate": "datum.d['2020-21'] / 1000", "as": "cattle_2021_m"},
+    {"calculate": "(datum.cattle_m - datum.cattle_2021_m) / datum.cattle_2021_m", "as": "change"},
+    {"calculate": "datum.d.label_lon", "as": "lon"},
+    {"calculate": "datum.d.label_lat", "as": "lat"},
+    {"joinaggregate": [{"op": "sum", "field": "cattle_m", "as": "total_m"}]},
+    {"calculate": "datum.cattle_m / datum.total_m", "as": "share"}
+  ],
+  "layer": [
+    {
+      "params": [
+        {"name": "hover", "select": {"type": "point", "on": "pointerover", "clear": "pointerout", "fields": ["code"]}}
+      ],
+      "mark": {"type": "geoshape", "stroke": "#ffffff", "cursor": "pointer"},
+      "encoding": {
+        "color": {
+          "field": "cattle_m",
+          "type": "quantitative",
+          "title": "Beef cattle (millions)",
+          "scale": {
+            "type": "threshold",
+            "domain": [1, 2.5, 5, 10],
+            "range": ["#f3e2c7", "#e2b47c", "#c9824a", "#9a4f28", "#5e2a14"]
+          },
+          "legend": {
+            "orient": "bottom",
+            "direction": "horizontal",
+            "gradientLength": 320,
+            "titleLimit": 400,
+            "format": ".1~f",
+            "labelOverlap": false,
+            "titleFontSize": 12,
+            "labelFontSize": 12,
+            "padding": 4
+          }
+        },
+        "strokeWidth": {
+          "condition": {"param": "hover", "empty": false, "value": 3},
+          "value": 1
+        },
+        "tooltip": [
+          {"field": "state", "type": "nominal", "title": "State"},
+          {"field": "cattle_m", "type": "quantitative", "title": "Beef cattle (millions)", "format": ".2f"},
+          {"field": "share", "type": "quantitative", "title": "Share of national herd", "format": ".0%"},
+          {"field": "change", "type": "quantitative", "title": "Change since 2020-21", "format": "+.1%"}
+        ]
+      }
+    },
+    {
+      "mark": {"type": "text", "fontWeight": "bold", "fontSize": 13, "dy": -8},
+      "encoding": {
+        "longitude": {"field": "lon", "type": "quantitative"},
+        "latitude": {"field": "lat", "type": "quantitative"},
+        "text": {"field": "code"},
+        "color": {"condition": {"test": "datum.cattle_m >= 5", "value": "#ffffff"}, "value": "#3a2a1f"}
+      }
+    },
+    {
+      "mark": {"type": "text", "fontSize": 12, "dy": 8},
+      "encoding": {
+        "longitude": {"field": "lon", "type": "quantitative"},
+        "latitude": {"field": "lat", "type": "quantitative"},
+        "text": {"field": "cattle_m", "format": ".1f"},
+        "color": {"condition": {"test": "datum.cattle_m >= 5", "value": "#ffffff"}, "value": "#3a2a1f"}
+      }
+    },
+    {
+      "transform": [{"filter": "datum.code === 'QLD'"}],
+      "mark": {"type": "text", "align": "left", "fontSize": 13, "fontStyle": "italic", "color": "#5e2a14", "dx": 6, "lineHeight": 17},
+      "encoding": {
+        "longitude": {"datum": 153.8},
+        "latitude": {"datum": -24.5},
+        "text": {"value": ["Queensland alone", "holds about half of", "Australia's beef cattle"]}
+      }
+    }
+  ],
+  "config": {
+    "view": {"stroke": null},
+    "font": "Source Sans 3, Helvetica, Arial, sans-serif"
+  }
+}

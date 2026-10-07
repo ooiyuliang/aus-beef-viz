@@ -1,0 +1,255 @@
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "description": "Small multiples: percentage change in each state's beef cattle herd compared with 2005, at 30 June each year from 2005 to 2025. Data: ABS, Australian Agriculture: Livestock 2024-25, Table 1. ACT is included in NSW.",
+  "data": {
+    "url": "data/beef_herd_2005_2025.csv",
+    "format": {
+      "parse": {
+        "year": "number",
+        "beef_cattle": "number"
+      }
+    }
+  },
+  "transform": [
+    {
+      "filter": "datum.code !== 'AUS'"
+    },
+    {
+      "joinaggregate": [
+        {
+          "op": "argmin",
+          "field": "year",
+          "as": "first"
+        },
+        {
+          "op": "argmax",
+          "field": "year",
+          "as": "last"
+        }
+      ],
+      "groupby": [
+        "code"
+      ]
+    },
+    {
+      "calculate": "(datum.beef_cattle - datum.first.beef_cattle) / datum.first.beef_cattle",
+      "as": "change"
+    },
+    {
+      "calculate": "datum.region + '|' + format(datum.last.beef_cattle / 1e6, '.1f') + 'M head (2025)'",
+      "as": "panel"
+    },
+    {
+      "calculate": "-datum.last.beef_cattle",
+      "as": "sort_key"
+    }
+  ],
+  "facet": {
+    "field": "panel",
+    "type": "nominal",
+    "sort": {
+      "field": "sort_key",
+      "op": "min"
+    },
+    "title": null,
+    "header": {
+      "labelFontSize": 12.5,
+      "labelFontWeight": "bold",
+      "labelColor": "#3a2a1f",
+      "labelAnchor": "start",
+      "labelPadding": 4,
+      "labelExpr": "split(datum.value, '|')",
+      "labelLimit": 0,
+      "labelLineHeight": 16
+    }
+  },
+  "columns": 4,
+  "spacing": {
+    "row": 28,
+    "column": 22
+  },
+  "spec": {
+    "width": 155,
+    "height": 120,
+    "encoding": {
+      "x": {
+        "field": "date",
+        "type": "temporal",
+        "title": null,
+        "axis": {
+          "values": [
+            "2005-06-30",
+            "2015-06-30",
+            "2025-06-30"
+          ],
+          "format": "%Y",
+          "grid": false,
+          "labelFontSize": 11
+        }
+      },
+      "y": {
+        "field": "change",
+        "type": "quantitative",
+        "title": null,
+        "scale": {
+          "domain": [
+            -0.3,
+            0.3
+          ]
+        },
+        "axis": {
+          "values": [
+            -0.2,
+            0,
+            0.2
+          ],
+          "format": "+.0%",
+          "labelFontSize": 11,
+          "gridColor": "#efe9e1"
+        }
+      }
+    },
+    "layer": [
+      {
+        "mark": {
+          "type": "rule",
+          "color": "#9e9086",
+          "strokeWidth": 1
+        },
+        "encoding": {
+          "y": {
+            "datum": 0
+          },
+          "x": null
+        }
+      },
+      {
+        "mark": {
+          "type": "area",
+          "color": "#e9dfd2",
+          "opacity": 0.7
+        },
+        "encoding": {
+          "y2": {
+            "datum": 0
+          }
+        }
+      },
+      {
+        "mark": {
+          "type": "line",
+          "color": "#9a4f28",
+          "strokeWidth": 2
+        }
+      },
+      {
+        "params": [
+          {
+            "name": "hover",
+            "select": {
+              "type": "point",
+              "on": "pointermove",
+              "nearest": true,
+              "encodings": [
+                "x"
+              ],
+              "clear": "pointerout"
+            }
+          }
+        ],
+        "mark": {
+          "type": "point",
+          "filled": true,
+          "color": "#9a4f28"
+        },
+        "encoding": {
+          "opacity": {
+            "condition": {
+              "param": "hover",
+              "empty": false,
+              "value": 1
+            },
+            "value": 0
+          },
+          "tooltip": [
+            {
+              "field": "region",
+              "type": "nominal",
+              "title": "State"
+            },
+            {
+              "field": "financial_year",
+              "type": "nominal",
+              "title": "Year (at 30 June)"
+            },
+            {
+              "field": "beef_cattle",
+              "type": "quantitative",
+              "title": "Beef cattle",
+              "format": ","
+            },
+            {
+              "field": "change",
+              "type": "quantitative",
+              "title": "Change since 2005",
+              "format": "+.1%"
+            }
+          ]
+        }
+      },
+      {
+        "transform": [
+          {
+            "filter": "datum.year === 2025 && datum.change >= 0"
+          }
+        ],
+        "mark": {
+          "type": "text",
+          "align": "right",
+          "dy": -10,
+          "fontSize": 11.5,
+          "fontWeight": "bold",
+          "color": "#5e2a14"
+        },
+        "encoding": {
+          "text": {
+            "field": "change",
+            "format": "+.0%"
+          }
+        }
+      },
+      {
+        "transform": [
+          {
+            "filter": "datum.year === 2025 && datum.change < 0"
+          }
+        ],
+        "mark": {
+          "type": "text",
+          "align": "right",
+          "dy": 14,
+          "fontSize": 11.5,
+          "fontWeight": "bold",
+          "color": "#5e2a14"
+        },
+        "encoding": {
+          "text": {
+            "field": "change",
+            "format": "+.0%"
+          }
+        }
+      }
+    ]
+  },
+  "config": {
+    "view": {
+      "stroke": null
+    },
+    "font": "Source Sans 3, Helvetica, Arial, sans-serif",
+    "axis": {
+      "domainColor": "#c9bfb3",
+      "tickColor": "#c9bfb3",
+      "labelColor": "#3a2a1f"
+    }
+  }
+}
