@@ -46,32 +46,43 @@
     .chart { width: 100%; margin-top: 24px; }
     .caption { font-size: 15px; color: var(--muted); margin-top: 8px; }
 
-    /* Year radio buttons that Vega-Lite generates */
-    .vega-bindings { font-size: 15px; margin-top: 8px; }
-    .vega-bind-name { font-weight: 600; }
-    .vega-bind label { margin-right: 10px; }
+    /* Year radio buttons that Vega-Lite generates: shown above the chart, styled like captions */
+    div.vega-embed { display: flex; flex-direction: column; align-items: flex-start; }
+    div.vega-embed > .vega-bindings { order: -1; margin: 0 0 12px; font-family: inherit; font-size: 15px; color: var(--muted); }
+    .vega-bind-name { font-weight: 600; color: var(--ink); margin-right: 6px; }
+    .vega-bind label { margin-right: 12px; cursor: pointer; }
+    .vega-bind input { accent-color: var(--accent); }
+    .units { font-size: 15px; color: var(--muted); margin-top: 20px; }
 
     .two-col { display: grid; grid-template-columns: auto 1fr; gap: 48px; align-items: center; margin-top: 24px; }
     .stat { margin-bottom: 24px; }
     .stat-number { font-family: "Bitter", Georgia, serif; font-size: 34px; font-weight: 700; line-height: 1.1; }
     .stat-label { font-size: 16px; color: var(--muted); }
     .grass { color: #4f6f36; }
+    .up { color: var(--accent); }
+    .my { color: #1f6f5c; }
     .grain { color: #a8771f; }
     @media (max-width: 760px) { .two-col { grid-template-columns: 1fr; gap: 24px; } }
 
     footer { padding: 40px 0 64px; font-size: 15px; color: var(--muted); }
     footer a { color: var(--accent); }
+    footer h4 { font-family: "Source Sans 3", Helvetica, Arial, sans-serif; font-size: 13px; font-weight: 600;
+                letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink); margin: 24px 0 4px; }
+    footer p { margin: 0; }
+    footer code { font-size: 14px; }
   </style>
 </head>
 <body>
 
   <header>
-    <div class="wrap prose">
+    <div class="wrap"><div class="prose">
       <h1>From Paddock to Plate</h1>
       <p class="lede">The beef in many Malaysian supermarkets and restaurants comes from Australia,
         one of the world's biggest beef exporters. Where are Australia's cattle raised,
         and how has the industry changed?</p>
-    </div>
+      <p class="units">In this story, <strong>t</strong> = tonnes, <strong>k t</strong> = thousand tonnes and
+        <strong>M t</strong> = million tonnes.</p>
+    </div></div>
   </header>
 
   <section id="world-stage">
@@ -181,8 +192,24 @@
           China's purchases almost doubled and Indonesia's rose by 70%. Japan, once the biggest buyer after
           the United States, now takes less. Malaysia also buys about 12% less Australian beef than it did ten years ago.</p>
       </div>
-      <div id="slope_export_destinations" class="chart"></div>
-      <p class="caption">Beef and veal exports in 2015 and 2025 (k = thousand tonnes, shipped weight), for the five largest
+      <div class="two-col">
+        <div id="slope_export_destinations"></div>
+        <div>
+          <div class="stat">
+            <div class="stat-number up">+84%</div>
+            <div class="stat-label">China, now Australia's second-biggest beef market</div>
+          </div>
+          <div class="stat">
+            <div class="stat-number up">+70%</div>
+            <div class="stat-label">Indonesia, Malaysia's neighbour</div>
+          </div>
+          <div class="stat">
+            <div class="stat-number my">−12%</div>
+            <div class="stat-label">Malaysia, from 12,344 t to 10,876 t</div>
+          </div>
+        </div>
+      </div>
+      <p class="caption">Beef and veal exports in 2015 and 2025 (shipped weight), for the five largest
         markets in 2025 plus Malaysia. Brown lines grew, grey lines fell, and Malaysia is shown in green. Hover over a
         line to highlight it. Source: Department of Agriculture, Fisheries and Forestry.</p>
 
@@ -230,19 +257,26 @@
   </section>
 
   <footer>
-    <div class="wrap prose">
-      <p><strong>Data sources</strong><br>
-        Australian Bureau of Statistics (2026), <a href="https://www.abs.gov.au/statistics/industry/agriculture/australian-agriculture-livestock/latest-release">Australian Agriculture: Livestock, 2024-25</a> (experimental estimates), including the cattle herd series 2005 to 2025.<br>
-        Department of Agriculture, Fisheries and Forestry (2026), <a href="https://www.agriculture.gov.au/biosecurity-trade/export/controlled-goods/meat/statistics/red-meat-stats-2025">Red meat export statistics 2025</a> and <a href="https://www.agriculture.gov.au/biosecurity-trade/export/controlled-goods/meat/statistics/red-meat-stats-2015">2015</a>, 57 Destination Reports, December (calendar year to date).<br>
-        Meat &amp; Livestock Australia (2026), <a href="https://www.mla.com.au/news-and-events/industry-news/beef-exports-break-new-ground-in-2025/">Beef exports break new ground in 2025</a>.<br>
+    <div class="wrap"><div class="prose">
+      <h4>Data sources</h4>
+      <p>Australian Bureau of Statistics (2026), <a href="https://www.abs.gov.au/statistics/industry/agriculture/australian-agriculture-livestock/latest-release">Australian Agriculture: Livestock, 2024-25</a> (experimental estimates), including the cattle herd series 2005 to 2025.<br>
         Australian Bureau of Statistics (2026), <a href="https://www.abs.gov.au/statistics/industry/agriculture/livestock-products-australia/latest-release">Livestock Products, Australia</a>, Table 3, cattle slaughtered (excluding calves).<br>
+        Department of Agriculture, Fisheries and Forestry (2026), <a href="https://www.agriculture.gov.au/biosecurity-trade/export/controlled-goods/meat/statistics/red-meat-stats-2025">Red meat export statistics 2025</a> and <a href="https://www.agriculture.gov.au/biosecurity-trade/export/controlled-goods/meat/statistics/red-meat-stats-2015">2015</a>, 57 Destination Reports, December (calendar year to date).<br>
         FAO (2026), <a href="https://www.fao.org/faostat/en/#data/QCL">FAOSTAT Crops and livestock products</a>, meat of cattle, production, 2005–2024.<br>
         FAO (2026), <a href="https://www.fao.org/faostat/en/#data/FBS">FAOSTAT Food Balances</a>, bovine meat, 2023.<br>
-        Drought information: Bureau of Meteorology (2019), <a href="http://www.bom.gov.au/climate/current/statements/scs70.pdf">Special Climate Statement 70</a>; Queensland Government, <a href="https://www.stateoftheenvironment.detsi.qld.gov.au/climate/climate-observations/extent-of-drought-declarations-in-queensland">Extent of drought declarations in Queensland</a>.<br>
-        World map: <a href="https://github.com/vega/vega-datasets">vega-datasets</a> world-110m, based on Natural Earth.<br>
+        Meat &amp; Livestock Australia (2026), <a href="https://www.mla.com.au/news-and-events/industry-news/beef-exports-break-new-ground-in-2025/">Beef exports break new ground in 2025</a>.</p>
+      <h4>Background information</h4>
+      <p>Bureau of Meteorology (2019), <a href="http://www.bom.gov.au/climate/current/statements/scs70.pdf">Special Climate Statement 70</a>.<br>
+        Queensland Government, <a href="https://www.stateoftheenvironment.detsi.qld.gov.au/climate/climate-observations/extent-of-drought-declarations-in-queensland">Extent of drought declarations in Queensland</a>.</p>
+      <h4>Maps</h4>
+      <p>World map: <a href="https://github.com/vega/vega-datasets">vega-datasets</a> world-110m, based on Natural Earth.<br>
         State boundaries: <a href="https://www.naturalearthdata.com/">Natural Earth</a> (public domain), simplified with mapshaper.</p>
-      <p>Created by Ooi Yu Liang, 8/10/2026. AI tools were used to help [describe use].</p>
-    </div>
+      <h4>About</h4>
+      <p>Created by Ooi Yu Liang, 8 October 2026, for FIT3179 Data Visualisation, Monash University.
+        Charts made with Vega-Lite; chart specifications and data are in the <code>js/</code> and <code>data/</code> folders of this repository.<br>
+        Claude (Anthropic) was used to help find and prepare data sources, write the Vega-Lite chart specifications
+        and review the wording of the text.</p>
+    </div></div>
   </footer>
 
   <script>

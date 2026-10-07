@@ -24,11 +24,11 @@
       "as": "label_y"
     },
     {
-      "calculate": "format(datum.tonnes / 1000, ',.0f') + 'k'",
+      "calculate": "format(datum.tonnes / 1000, ',.0f') + 'k t'",
       "as": "k"
     }
   ],
-  "width": 560,
+  "width": 420,
   "height": 420,
   "encoding": {
     "x": {

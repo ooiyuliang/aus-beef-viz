@@ -84,7 +84,7 @@
           ],
           "format": "%Y",
           "grid": false,
-          "labelFontSize": 11
+          "labelFontSize": 12
         }
       },
       "y": {
@@ -104,7 +104,7 @@
             0.2
           ],
           "format": "+.0%",
-          "labelFontSize": 11,
+          "labelFontSize": 12,
           "gridColor": "#efe9e1"
         }
       }
@@ -207,7 +207,7 @@
           "type": "text",
           "align": "right",
           "dy": -10,
-          "fontSize": 11.5,
+          "fontSize": 12,
           "fontWeight": "bold",
           "color": "#5e2a14"
         },
@@ -228,7 +228,7 @@
           "type": "text",
           "align": "right",
           "dy": 14,
-          "fontSize": 11.5,
+          "fontSize": 12,
           "fontWeight": "bold",
           "color": "#5e2a14"
         },

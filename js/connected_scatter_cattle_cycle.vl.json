@@ -85,7 +85,7 @@
             },
             "fontSize": 12,
             "fontWeight": "bold",
-            "color": "#9e9086"
+            "color": "#6b5d52"
           },
           "encoding": {
             "x": {
@@ -109,7 +109,7 @@
             },
             "dy": 15,
             "fontSize": 12,
-            "color": "#9e9086"
+            "color": "#6b5d52"
           },
           "encoding": {
             "x": {
@@ -229,7 +229,7 @@
           "filter": "indexof([2005, 2013, 2015, 2016, 2017, 2019, 2020, 2022, 2024, 2025], datum.year) >= 0"
         },
         {
-          "calculate": "{2005: 'up', 2013: 'up', 2015: 'right', 2016: 'down', 2017: 'down', 2019: 'up', 2020: 'left', 2022: 'down', 2024: 'right', 2025: 'up'}[datum.year]",
+          "calculate": "{2005: 'up', 2013: 'up', 2015: 'right', 2016: 'down', 2017: 'left', 2019: 'up', 2020: 'left', 2022: 'down', 2024: 'right', 2025: 'up'}[datum.year]",
           "as": "pos"
         }
       ],
